@@ -1,9 +1,11 @@
 import 'package:expenses_tracker/pages/home_page.dart';
 import 'package:expenses_tracker/pages/sign_up_page.dart';
 import 'package:expenses_tracker/providers/auth_provider.dart';
+import 'package:expenses_tracker/providers/google_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sign_in_button/sign_in_button.dart';
 
 // ignore: must_be_immutable
 class SignInPage extends ConsumerWidget {
@@ -43,8 +45,8 @@ class SignInPage extends ConsumerWidget {
               ),
             ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-            ElevatedButton(
-              onPressed: () async {
+            InkWell(
+              onTap: () async {
                 await ref
                     .read(authProvider.notifier)
                     .signInUserWithEmailAndPassword(
@@ -64,9 +66,43 @@ class SignInPage extends ConsumerWidget {
                   );
                 }
               },
-              child: Text('Sign in'),
+              child: Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.195,
+                ),
+                width: double.infinity,
+                padding: EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.tealAccent,
+                ),
+                child: Center(
+                  child: Text('Sign in', style: TextStyle(color: Colors.black)),
+                ),
+              ),
             ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+            ClipRRect(
+              borderRadius: BorderRadiusGeometry.circular(100),
+              child: SignInButton(
+                Buttons.google,
+                onPressed: () async {
+                  await ref.watch(googleAuth.notifier).signInWithGoogle();
+                  if (FirebaseAuth.instance.currentUser != null) {
+                    Navigator.pushReplacement(
+                      // ignore: use_build_context_synchronously
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return HomePage();
+                        },
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.07),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
